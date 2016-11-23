@@ -4,9 +4,10 @@ using UnityStandardAssets.Characters.FirstPerson;
 
 public class RescaleCharacter : MonoBehaviour {
 
-    // Use this for initialization
-    float[] size = { 0.125f, 0.25f, 0.5f, 1 };
-    int index = 3;
+
+    public int index;
+    public PlayerScaleParameters[] playerScaleParameters;
+
 	void Start () {
         gameObject.GetComponent<FirstPersonController>();
 	}
@@ -24,17 +25,28 @@ public class RescaleCharacter : MonoBehaviour {
 
     void ScaleUp()
     {
+        if (index == playerScaleParameters.Length - 1)
+            return;
         index++;
-        this.gameObject.transform.localScale = new Vector3(size[index], size[index], size[index]);
-        Camera.main.fieldOfView += (index + 1) * 5;
-        
+        setScale();
     }
 
     void ScaleDown()
     {
+        if (index == 0)
+            return;
         index--;
-        this.gameObject.transform.localScale = new Vector3(size[index], size[index], size[index]);
-        Camera.main.fieldOfView -= (index + 1) * 5;
+        setScale();
 
+    }
+
+    void setScale()
+    {
+        this.gameObject.transform.localScale = new Vector3(playerScaleParameters[index].sizeScale, playerScaleParameters[index].sizeScale, playerScaleParameters[index].sizeScale);
+        Camera.main.fieldOfView = playerScaleParameters[index].fieldOfView;
+        FirstPersonController controller = gameObject.GetComponent<FirstPersonController>();
+        /**
+            d'autres trucs a faire ici
+        */
     }
 }
