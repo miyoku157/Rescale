@@ -9,7 +9,8 @@ public class RescaleCharacter : MonoBehaviour {
     public PlayerScaleParameters[] playerScaleParameters;
 
 	void Start () {
-        gameObject.GetComponent<FirstPersonController>();
+        gameObject.GetComponent<FirstPersonController>().m_WalkSpeed=3;
+
 	}
 	
 	// Update is called once per frame
@@ -24,18 +25,27 @@ public class RescaleCharacter : MonoBehaviour {
         else if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             RaycastHit hit;
-            Vector3 fwd = transform.TransformDirection(Vector3.forward);
-            if (Physics.Raycast(transform.position, fwd,out hit))
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray,out hit,200))
             {
-                hit.transform.localScale = new Vector3(hit.transform.localScale.x / 2, hit.transform.localScale.y / 2, hit.transform.localScale.z / 2);
+                ObjectController controller=hit.transform.gameObject.GetComponent<ObjectController>();
+                if (controller != null)
+                {
+                    controller.ScaleDown();
+                }
             }
         }else if (Input.GetKeyDown(KeyCode.Mouse1))
         {
             RaycastHit hit;
-            Vector3 fwd = transform.TransformDirection(Vector3.forward);
-            if (Physics.Raycast(transform.position, fwd, out hit))
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            if (Physics.Raycast(ray, out hit,200))
             {
-                hit.transform.localScale = new Vector3(hit.transform.localScale.x * 2, hit.transform.localScale.y * 2, hit.transform.localScale.z * 2);
+                ObjectController controller = hit.transform.gameObject.GetComponent<ObjectController>();
+                if (controller != null)
+                {
+                    controller.ScaleUp();
+                }
             }
         }
     }

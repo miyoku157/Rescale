@@ -1,15 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerScaleParameters : MonoBehaviour {
+public class PlayerScaleParameters : ThingsRescaleParameters
+{
 
-    public float sizeScale = 1;
 
     public float fieldOfView = 70;
 
     public float speed = 1;
-
-    public float mass = 1;
 
     public float jumpHeight = 1;
 
@@ -17,20 +15,16 @@ public class PlayerScaleParameters : MonoBehaviour {
         Ajouter d'autres trucs ici
     */
 
-    public PlayerScaleParameters()
+    public PlayerScaleParameters():base()
     {
-        sizeScale = 1;
         fieldOfView = 70;
         speed = 1;
-        mass = 1;
         jumpHeight = 1;
     }
-    public PlayerScaleParameters(float _sizeScale, float _fov, float _speed, float _mass, float _jmp)
+    public PlayerScaleParameters(float _sizeScale, float _fov,float _mass, float _speed, float _jmp):base(_sizeScale, _mass)
     {
-        sizeScale = _sizeScale;
         fieldOfView = _fov;
         speed = _speed;
-        mass = _mass;
         jumpHeight = _jmp;
     }
 }
