@@ -4,7 +4,7 @@ using UnityStandardAssets.Characters.FirstPerson;
 
 public class RescaleCharacter : MonoBehaviour {
 
-
+    public float timeTransition;
     public int index;
     public PlayerScaleParameters[] playerScaleParameters;
 
@@ -15,6 +15,10 @@ public class RescaleCharacter : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        Vector3 newScale = new Vector3(playerScaleParameters[index].sizeScale, playerScaleParameters[index].sizeScale, playerScaleParameters[index].sizeScale);
+        float newFov=playerScaleParameters[index].fieldOfView;
+        Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView,newFov,2.0f*Time.deltaTime);
+        gameObject.transform.localScale = Vector3.Lerp(transform.localScale, newScale, 2.0f * Time.deltaTime);
         if (Input.GetKeyDown(KeyCode.I))
         {
             ScaleUp();
@@ -71,12 +75,13 @@ public class RescaleCharacter : MonoBehaviour {
 
     void setScale()
     {
-        this.gameObject.transform.localScale = new Vector3(playerScaleParameters[index].sizeScale, playerScaleParameters[index].sizeScale, playerScaleParameters[index].sizeScale);
-        Camera.main.fieldOfView = playerScaleParameters[index].fieldOfView;
-        this.gameObject.GetComponent<Rigidbody>().mass = playerScaleParameters[index].mass;
+        
+        
+        gameObject.GetComponent<Rigidbody>().mass = playerScaleParameters[index].mass;
         FirstPersonController controller = gameObject.GetComponent<FirstPersonController>();
         controller.m_JumpSpeed = playerScaleParameters[index].jumpHeight;
         controller.m_WalkSpeed = playerScaleParameters[index].speed;
+        timeTransition = 2.0f;
         /**
             d'autres trucs a faire ici
         */
