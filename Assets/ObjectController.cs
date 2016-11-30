@@ -44,7 +44,7 @@ public class ObjectController : MonoBehaviour {
         //setScale();
 
     }
-
+    
     void UpdateSize()
     {
         if (inSizeTransition)

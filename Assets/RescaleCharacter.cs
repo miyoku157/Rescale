@@ -4,7 +4,7 @@ using UnityStandardAssets.Characters.FirstPerson;
 
 public class RescaleCharacter : MonoBehaviour {
 
-    public float transitionTime;
+    public float transitionTime=1.0f;
     public int index;
     public PlayerScaleParameters[] playerScaleParameters;
 
@@ -13,7 +13,7 @@ public class RescaleCharacter : MonoBehaviour {
     float transitionBeginTime;
 
 	void Start () {
-        inSizeTransition = false;
+        //inSizeTransition = false;
         gameObject.GetComponent<FirstPersonController>().m_WalkSpeed=3;
 
 	}
@@ -21,7 +21,7 @@ public class RescaleCharacter : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        UpdateSize();
+        //UpdateSize();
 
         if (Input.GetKeyDown(KeyCode.I))
         {
@@ -61,8 +61,29 @@ public class RescaleCharacter : MonoBehaviour {
             }
         }
     }
+    IEnumerator setSize()
+    {
+        float transitionPercent = 0.0f;
+        float targetFov = 0.0f;
+        Vector3 targetScale = new Vector3();
+        while (transitionPercent < 1.0) {
 
-    void UpdateSize()
+            float t=Time.time;
+            transitionPercent = (Time.time - transitionBeginTime) / 1.0f;
+            targetScale = new Vector3(playerScaleParameters[index].sizeScale, playerScaleParameters[index].sizeScale, playerScaleParameters[index].sizeScale);
+            targetFov = playerScaleParameters[index].fieldOfView;
+            Vector3 previousScale = new Vector3(playerScaleParameters[previousScaleParametersIndex].sizeScale, playerScaleParameters[previousScaleParametersIndex].sizeScale, playerScaleParameters[previousScaleParametersIndex].sizeScale);
+            float previousFov = playerScaleParameters[previousScaleParametersIndex].fieldOfView;
+
+            Camera.main.fieldOfView = Mathf.Lerp(previousFov, targetFov, transitionPercent);
+            gameObject.transform.localScale = Vector3.Lerp(previousScale, targetScale, transitionPercent);
+            yield return new WaitForEndOfFrame();
+        }
+        Camera.main.fieldOfView = targetFov;
+        gameObject.transform.localScale = targetScale;
+
+    }
+    /*void UpdateSize()
     {
         if (inSizeTransition)
         {
@@ -85,7 +106,7 @@ public class RescaleCharacter : MonoBehaviour {
             Camera.main.fieldOfView = Mathf.Lerp(previousFov, targetFov, transitionPercent);
             gameObject.transform.localScale = Vector3.Lerp(previousScale, targetScale, transitionPercent);
         }
-    }
+    }*/
 
     void ScaleUp()
     {
@@ -117,6 +138,7 @@ public class RescaleCharacter : MonoBehaviour {
         FirstPersonController controller = gameObject.GetComponent<FirstPersonController>();
         controller.m_JumpSpeed = playerScaleParameters[index].jumpHeight;
         controller.m_WalkSpeed = playerScaleParameters[index].speed;
+        StartCoroutine("setSize");
         /**
             d'autres trucs a faire ici
         */
