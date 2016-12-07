@@ -4,6 +4,7 @@ using UnityStandardAssets.Characters.FirstPerson;
 
 public class RescaleCharacter : MonoBehaviour {
 
+	public float rescaleRange = 300f;
     public float transitionTime=1.0f;
     public int index;
     public PlayerScaleParameters[] playerScaleParameters;
@@ -23,6 +24,8 @@ public class RescaleCharacter : MonoBehaviour {
 
         //UpdateSize();
 
+
+
         if (Input.GetKeyDown(KeyCode.I))
         {
             if(!inSizeTransition)
@@ -37,21 +40,32 @@ public class RescaleCharacter : MonoBehaviour {
         else if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray,out hit,200))
+	
+			Physics.Raycast (transform.GetChild(0).position, transform.GetChild(0).TransformDirection(Vector3.forward), out hit, rescaleRange);
+			Debug.DrawRay(transform.GetChild(0).position, transform.GetChild(0).TransformDirection(Vector3.forward)*rescaleRange, Color.red);
+
+			if (hit.collider != null)
             {
+				
                 ObjectController controller=hit.transform.gameObject.GetComponent<ObjectController>();
-                if (controller != null)
-                {
-                    controller.ScaleDown();
-                }
+				if (controller != null) {
+
+					Debug.Log ("hit a cube");
+
+					controller.ScaleDown ();
+
+				} else {
+
+					Debug.Log ("hit something");
+				}
             }
         } else if (Input.GetKeyDown(KeyCode.Mouse1))
         {
             RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			Physics.Raycast (transform.GetChild(0).position, transform.GetChild(0).TransformDirection(Vector3.forward), out hit, rescaleRange);
+			Debug.DrawRay(transform.GetChild(0).position, transform.GetChild(0).TransformDirection(Vector3.forward)*rescaleRange, Color.green);
 
-            if (Physics.Raycast(ray, out hit,200))
+			if (hit.collider != null)
             {
                 ObjectController controller = hit.transform.gameObject.GetComponent<ObjectController>();
                 if (controller != null)
@@ -81,6 +95,7 @@ public class RescaleCharacter : MonoBehaviour {
         }
         Camera.main.fieldOfView = targetFov;
         gameObject.transform.localScale = targetScale;
+		inSizeTransition = false;
 
     }
     /*void UpdateSize()

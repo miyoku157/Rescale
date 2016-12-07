@@ -1,68 +1,202 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[ExecuteInEditMode]
+
 public class ObjectController : MonoBehaviour {
 
-    public float transitionTime;
-    public int index = 1;
+    private float transitionTime;
+	private int index;
+	private int baseIndex;
+
+	public int baseScale = 1;
+
+	private float instabilityDelay = 2f;
+
+	private GameObject pivot;
+
+
+	private Vector3 offset = Vector3.zero;
+
+	private Vector3 pivotPos = Vector3.zero;
+
+	private Vector3 lastPos;
+	private Vector3 targetPos;
+
+
     public ThingsRescaleParameters[] thingsRescaleParameter;
-    
-    Vector3 baseScale;
+
+	private GameObject gameController;
+ 
     bool inSizeTransition;
     int previousScaleParametersIndex;
     float transitionBeginTime;
 
+	public bool shouldResetScale = false;
+
+	private bool inEditor = true;
+
     // Use this for initialization
     void Start () {
-        inSizeTransition = false;
-        baseScale = transform.localScale;
-	}
+
+		gameController = GameObject.FindWithTag ("GameController");
+
+
+		instabilityDelay = gameController.GetComponent<GameController> ().delayBeforeScaleReset;
+
+		transitionTime = gameController.GetComponent<GameController> ().objectScaleTransitionTime;
+
+		pivot = transform.GetChild (0).gameObject;
+
+
+
+
+		shouldResetScale= false;
 	
+        inSizeTransition = false;
+
+		index = baseIndex;
+
+
+	}
+
 	// Update is called once per frame
 	void Update () {
-        UpdateSize();
+
+		if (inEditor) {
+
+		
+
+			AdaptSizeInEditor ();
+
+			if (gameController.GetComponent<GameController> ().gameHasStarted == true) {
+				
+				inEditor = false;
+
+			}
+
+		} else {
+			
+			UpdateSize ();
+		}
+
+		if (Time.time > transitionBeginTime + instabilityDelay) {
+
+			if (shouldResetScale) {
+
+				shouldResetScale = false;
+
+				if (index > baseIndex) {
+					ScaleDown ();
+				} else {
+					ScaleUp ();
+				}
+
+			}
+			
+		}
+
+
     }
+
+
+	void AdaptSizeInEditor(){
+
+		baseIndex = baseScale - 1;
+
+		index = baseIndex;
+
+		float scale = thingsRescaleParameter [baseIndex].sizeScale;
+
+
+		pivotPos = pivot.transform.position;
+		offset = (transform.position- pivotPos ) * scale / transform.localScale.y;
+		transform.localScale = new Vector3 (scale, scale, scale);
+		transform.position = pivotPos + offset;
+	
+
+	}
+
+
     public void ScaleUp()
     {
         if (index == thingsRescaleParameter.Length - 1 || inSizeTransition)
             return;
         inSizeTransition = true;
+		shouldResetScale = false;
         previousScaleParametersIndex = index;
         transitionBeginTime = Time.time;
+		lastPos = transform.position;
+		pivotPos = pivot.transform.position;
+		offset = (transform.position - pivotPos)*3;
+		targetPos = pivotPos + offset;
         index++;
+
         //setScale();
-    }
+
+	}
 
     public void ScaleDown()
     {
         if (index == 0 || inSizeTransition)
             return;
         inSizeTransition = true;
+		shouldResetScale = false;
         previousScaleParametersIndex = index;
         transitionBeginTime = Time.time;
+		lastPos = transform.position;
+		pivotPos = pivot.transform.position;
+		offset = (transform.position - pivotPos)/3;
+		targetPos = pivotPos + offset;
+	
         index--;
+
+
+
         //setScale();
+
+
 
     }
     
     void UpdateSize()
     {
+		
         if (inSizeTransition)
         {
             float transitionPercent = (Time.time - transitionBeginTime) / transitionTime;
 
-            Vector3 targetScale = new Vector3(thingsRescaleParameter[index].sizeScale, thingsRescaleParameter[index].sizeScale, thingsRescaleParameter[index].sizeScale);
+			float tScale = thingsRescaleParameter [index].sizeScale;
+
+			Vector3 targetScale = new Vector3(tScale,tScale,tScale);
+
 
             if (transitionPercent >= 1.0)
             {
                 gameObject.transform.localScale = targetScale;
+				gameObject.transform.position = targetPos;
+			
                 inSizeTransition = false;
+				if (index != baseIndex) {
+
+					shouldResetScale = true;
+				
+				}
                 return;
             }
 
-            Vector3 previousScale = new Vector3(thingsRescaleParameter[previousScaleParametersIndex].sizeScale, thingsRescaleParameter[previousScaleParametersIndex].sizeScale, thingsRescaleParameter[previousScaleParametersIndex].sizeScale);
+			float pScale = thingsRescaleParameter [previousScaleParametersIndex].sizeScale;
+
+			Vector3 previousScale = new Vector3(pScale, pScale, pScale);
             
             gameObject.transform.localScale = Vector3.Lerp(previousScale, targetScale, transitionPercent);
+
+			gameObject.transform.position = Vector3.Lerp(lastPos, targetPos, transitionPercent);
+
+	
+			//transform.position = pivotPos + offset;
+
+		
         }
     }
     /*   void setScale()

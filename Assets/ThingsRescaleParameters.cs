@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+
 public class ThingsRescaleParameters : MonoBehaviour {
 
     public float sizeScale = 1;
