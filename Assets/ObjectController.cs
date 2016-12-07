@@ -15,6 +15,7 @@ public class ObjectController : MonoBehaviour {
 
 	private GameObject pivot;
 
+	public bool isUnstable = true;
 
 	private Vector3 offset = Vector3.zero;
 
@@ -28,11 +29,11 @@ public class ObjectController : MonoBehaviour {
 
 	private GameObject gameController;
  
-    bool inSizeTransition;
-    int previousScaleParametersIndex;
-    float transitionBeginTime;
+    private bool inSizeTransition;
+    private int previousScaleParametersIndex;
+    private float transitionBeginTime;
 
-	public bool shouldResetScale = false;
+	private bool shouldResetScale = false;
 
 	private bool inEditor = true;
 
@@ -179,7 +180,7 @@ public class ObjectController : MonoBehaviour {
                 inSizeTransition = false;
 				if (index != baseIndex) {
 
-					shouldResetScale = true;
+					shouldResetScale = isUnstable;
 				
 				}
                 return;

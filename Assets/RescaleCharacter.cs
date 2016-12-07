@@ -39,35 +39,33 @@ public class RescaleCharacter : MonoBehaviour {
 
         else if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            RaycastHit hit;
-	
-			Physics.Raycast (transform.GetChild(0).position, transform.GetChild(0).TransformDirection(Vector3.forward), out hit, rescaleRange);
-			Debug.DrawRay(transform.GetChild(0).position, transform.GetChild(0).TransformDirection(Vector3.forward)*rescaleRange, Color.red);
+           
 
-			if (hit.collider != null)
-            {
-				
-                ObjectController controller=hit.transform.gameObject.GetComponent<ObjectController>();
-				if (controller != null) {
+		
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			RaycastHit hit;
 
-					Debug.Log ("hit a cube");
+			if (Physics.Raycast(ray, out hit, 20)) 
 
-					controller.ScaleDown ();
+			{
+				ObjectController controller = hit.transform.gameObject.GetComponent<ObjectController>();
 
-				} else {
-
-					Debug.Log ("hit something");
+				if (controller != null)
+				{
+					controller.ScaleDown();
 				}
-            }
+			}
+		
         } else if (Input.GetKeyDown(KeyCode.Mouse1))
         {
-            RaycastHit hit;
-			Physics.Raycast (transform.GetChild(0).position, transform.GetChild(0).TransformDirection(Vector3.forward), out hit, rescaleRange);
-			Debug.DrawRay(transform.GetChild(0).position, transform.GetChild(0).TransformDirection(Vector3.forward)*rescaleRange, Color.green);
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			RaycastHit hit;
 
-			if (hit.collider != null)
+			if (Physics.Raycast(ray, out hit, 20)) 
+				
             {
                 ObjectController controller = hit.transform.gameObject.GetComponent<ObjectController>();
+
                 if (controller != null)
                 {
                     controller.ScaleUp();
