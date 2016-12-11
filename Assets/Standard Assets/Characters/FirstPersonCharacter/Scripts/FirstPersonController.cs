@@ -17,7 +17,8 @@ namespace UnityStandardAssets.Characters.FirstPerson
         [SerializeField] [Range(0f, 1f)] private float m_RunstepLenghten;
         [SerializeField] public float m_JumpSpeed;
         [SerializeField] private float m_StickToGroundForce;
-        [SerializeField] private float m_GravityMultiplier;
+
+        public float m_GravityMultiplier;
         [SerializeField] private MouseLook m_MouseLook;
         [SerializeField] private bool m_UseFovKick;
         [SerializeField] private FOVKick m_FovKick = new FOVKick();
@@ -43,6 +44,15 @@ namespace UnityStandardAssets.Characters.FirstPerson
         private bool m_Jumping;
         private AudioSource m_AudioSource;
 
+		private float deathDelay = 3f;
+
+		private float deathTimer = 0f;
+
+		public bool isAlive=true;
+		private bool isFalling = false;
+		private float fallStartHeight = 0f;
+		public float lethalFallHeight = 9f;
+
         // Use this for initialization
         private void Start()
         {
@@ -62,6 +72,15 @@ namespace UnityStandardAssets.Characters.FirstPerson
         // Update is called once per frame
         private void Update()
         {
+
+
+
+			if (!isAlive && Time.time > deathTimer + deathDelay) {
+
+				isAlive = true;
+
+			}
+
             RotateView();
             // the jump state needs to read here to make sure it is not missed
             if (!m_Jump)
@@ -69,17 +88,27 @@ namespace UnityStandardAssets.Characters.FirstPerson
                 m_Jump = CrossPlatformInputManager.GetButtonDown("Jump");
             }
 
-            if (!m_PreviouslyGrounded && m_CharacterController.isGrounded)
+            if (!m_PreviouslyGrounded && m_CharacterController.isGrounded && isFalling)
             {
                 StartCoroutine(m_JumpBob.DoBobCycle());
                 PlayLandingSound();
                 m_MoveDir.y = 0f;
                 m_Jumping = false;
+				isFalling = false;
+				CheckFallDamage ();
+
             }
             if (!m_CharacterController.isGrounded && !m_Jumping && m_PreviouslyGrounded)
             {
+				
                 m_MoveDir.y = 0f;
             }
+
+			if (!isFalling && m_PreviouslyGrounded && !m_CharacterController.isGrounded) {
+				isFalling = true;
+				fallStartHeight = transform.position.y;
+
+			}
 
             m_PreviouslyGrounded = m_CharacterController.isGrounded;
         }
@@ -110,6 +139,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
             m_MoveDir.z = desiredMove.z*speed;
 
 
+
             if (m_CharacterController.isGrounded)
             {
                 m_MoveDir.y = -m_StickToGroundForce;
@@ -134,6 +164,14 @@ namespace UnityStandardAssets.Characters.FirstPerson
             m_MouseLook.UpdateCursorLock();
         }
 
+		private void CheckFallDamage(){
+
+			if (fallStartHeight - transform.position.y > lethalFallHeight) {
+
+				isAlive = false;
+				deathTimer = Time.time;
+			}
+		}
 
         private void PlayJumpSound()
         {
